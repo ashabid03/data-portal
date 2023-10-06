@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            .flex-container {
+              display: flex;
+            }
+            
+            .flex-container > div {
+            display: flex;
+            margin: 10px;
+            padding: 20px;
+            font-size: 30px;
+            }
+            </style>
+    </head>
+    
+    <body class="flex-container">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="submit">
+        </form>
+    </body>
+    <div class="flex-container">
+        <canvas id="myChartOne"></canvas>
+    </div>
+    <div class="flex-container">
+        <canvas id="myChartTwo"></canvas>
+    </div>
+    
+      
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      
+      <script>
+        const ctxOne = document.getElementById('myChartOne');
+        const ctxTwo = document.getElementById('myChartTwo');
+        const backgroundColors = 
+                ["#d22d07",
+                "#d27007",
+                "#069745",
+                "#36e611",
+                "#cbe611",
+                "#1084ff",
+                "#3c07b0",
+                "#b00786",
+                "#737373"
+            ];
+      
+        new Chart(ctxOne, {
+          type: 'doughnut',
+          data: {
+            labels: [{% for label in labels %} '{{label}}', {% endfor %}],
+            datasets: [{
+                label: "",
+                data: [{% for count in counts_data %} '{{count}}', {% endfor %}],
+                backgroundColor: backgroundColors,
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                                let label = context.label;
+                                let value = context.formattedValue;
+                                return label + ": " + value + '%';
+                            }
+                        }   
+                    }
+                }]},
+            options: {
+                responsive: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '% sequences/molecules across types'
+                    }
+                },
+            },
+            
+        });
+
+        new Chart(ctxTwo, {
+          type: 'doughnut',
+          data: {
+            labels: [{% for label in labels %} '{{label}}', {% endfor %}],
+            datasets: [{
+            label: "",
+              data: [{% for unique_count in unique_counts_data %} '{{unique_count}}', {% endfor %}],
+              backgroundColor: backgroundColors,
+              tooltip: {
+                callbacks: {
+                    label: function(context) {
+                            let label = context.label;
+                            let value = context.formattedValue;
+                            return label + ": " + value + '%';
+                        }
+                    }   
+                }
+            }]},
+            options: {
+                responsive: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '% ‘unique’ sequences/molecule across types'
+                    }
+                },
+            },
+        });
+      </script>
+      
+</html>
